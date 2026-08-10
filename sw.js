@@ -1,10 +1,9 @@
-const CACHE='lean-tracker-v3';
-const CORE=['./','./index.html','./manifest.webmanifest','./icon-192.png','./icon-512.png'];
+const CACHE='lean-tracker-v4';
+const CORE=['./','./index.html','./manifest.webmanifest','./icon-192.png','./icon-512.png','./img/lat-pulldown.jpg'];
 const CROP='?auto=compress&cs=tinysrgb&w=800&h=400&fit=crop';
 const IMAGES=[
 'https://steelsupplements.com/cdn/shop/articles/shutterstock_627366494_8e10811d-1d15-4731-9fab-fcdbddd8ef11_2000x.jpg?v=1768854444',
 'https://imgr1.menshealth.de/Brustpresse-inlineImageCOdc-3924ed50-45129.jpg',
-'https://images.pexels.com/photos/6539827/pexels-photo-6539827.jpeg'+CROP,
 'https://images.pexels.com/photos/29825217/pexels-photo-29825217.jpeg'+CROP,
 'https://images.pexels.com/photos/7289370/pexels-photo-7289370.jpeg'+CROP,
 'https://images.pexels.com/photos/17559311/pexels-photo-17559311.jpeg'+CROP,
