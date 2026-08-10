@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#181818">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.webmanifest">
+<title>Lean Tracker</title>
+<style>
+:root{--bg:#f6f6f4;--card:#fff;--text:#181818;--muted:#777;--line:#e7e7e3;--accent:#ff6a00;--green:#20a464;--danger:#d92d20}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Inter","Segoe UI",sans-serif}
+.app{max-width:760px;margin:auto;padding:18px 16px 96px}.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+h1{font-size:28px;margin:0 0 4px;letter-spacing:-.7px}.sub{color:var(--muted);font-size:14px}
+.tabs{display:flex;gap:6px;overflow:auto;margin:0 -2px 16px;padding-bottom:2px}.tab{border:0;background:#e9e9e5;padding:10px 14px;border-radius:12px;font-weight:700;white-space:nowrap}.tab.active{background:var(--text);color:#fff}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:12px}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.stat{background:#fafaf8;border-radius:14px;padding:13px}.label{font-size:12px;color:var(--muted)}.value{font-size:21px;font-weight:750;margin-top:4px}
+.progress{height:8px;background:#ecece8;border-radius:99px;overflow:hidden;margin-top:10px}.bar{height:100%;background:var(--accent);width:0%;transition:.25s}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px}.row+.row{margin-top:10px}
+button{cursor:pointer;border:0;border-radius:12px;padding:11px 14px;font-weight:700}.primary{background:var(--accent);color:#fff}.secondary{background:#eee;color:#222}.danger{background:#fff0ef;color:var(--danger)}
+input,select,textarea{width:100%;border:1px solid var(--line);background:#fff;border-radius:11px;padding:11px;font-size:15px;outline:none}textarea{min-height:72px;resize:vertical}input:focus,select:focus,textarea:focus{border-color:#aaa}
+.form{display:grid;grid-template-columns:1fr 1fr;gap:10px}.full{grid-column:1/-1}
+h2{font-size:18px;margin:0 0 12px}h3{font-size:15px;margin:0}.muted{color:var(--muted);font-size:13px}
+.hidden{display:none}.small{font-size:12px}.empty{text-align:center;padding:25px 8px;color:var(--muted)}
+.exercise{border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-top:10px}.exercise img{width:100%;height:150px;object-fit:cover;display:block;background:#eee}.exercise-body{padding:12px}.sets{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}.set{min-width:58px;padding:8px 6px;text-align:center;background:#eee}.set.done{background:#e9f8ee;border:1px solid #b9e5c7;color:#176b3d}
+.exercise-note{font-size:12px;color:var(--muted);margin-top:6px}
+.food{padding:10px 0;border-bottom:1px solid var(--line)}.food:last-child{border-bottom:0}
+.nutrition-hero{width:100%;height:190px;object-fit:cover;border-radius:14px;margin-bottom:12px}
+.history-item{padding:13px 0;border-bottom:1px solid var(--line)}.history-item:last-child{border-bottom:0}
+.history-actions{display:flex;gap:7px;margin-top:9px}.history-actions button{padding:8px 10px;font-size:12px}
+.week{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-top:12px}.daybox{background:#fafaf8;border:1px solid var(--line);border-radius:10px;padding:8px 3px;text-align:center;font-size:11px}.daybox.done{background:#e9f8ee;border-color:#b9e5c7}
+footer{position:fixed;bottom:0;left:0;right:0;background:rgba(246,246,244,.94);backdrop-filter:blur(12px);padding:10px 16px;border-top:1px solid var(--line);text-align:center;font-size:12px;color:var(--muted)}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:flex-end;justify-content:center;z-index:20}.modal.open{display:flex}.sheet{background:#fff;border-radius:20px 20px 0 0;width:min(760px,100%);padding:18px;max-height:90vh;overflow:auto}
+@media(min-width:650px){.grid{grid-template-columns:repeat(4,1fr)}.modal{align-items:center}.sheet{border-radius:20px}}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top">
+    <div><h1>Lean Tracker</h1><div class="sub">Workout · Calories · Protein · Progress</div></div>
+    <button class="secondary" onclick="resetAll()">Reset</button>
+  </div>
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('today',this)">Today</button>
+    <button class="tab" onclick="showTab('workout',this)">Workout</button>
+    <button class="tab" onclick="showTab('nutrition',this)">Nutrition</button>
+    <button class="tab" onclick="showTab('progress',this)">Progress</button>
+  </div>
+
+  <section id="today">
+    <div class="card">
+      <h2>Today</h2>
+      <div class="grid">
+        <div class="stat"><div class="label">Calories</div><div class="value"><span id="calToday">0</span> / 1,850</div></div>
+        <div class="stat"><div class="label">Protein</div><div class="value"><span id="proToday">0</span>g / 110g</div></div>
+        <div class="stat"><div class="label">Steps</div><div class="value"><span id="stepsToday">0</span></div></div>
+        <div class="stat"><div class="label">Workout</div><div class="value" id="workoutStatus">—</div></div>
+      </div>
+      <div class="progress"><div class="bar" id="calBar"></div></div>
+    </div>
+    <div class="card">
+      <h2>Quick add food</h2>
+      <div class="form">
+        <input id="foodName" placeholder="Food / drink">
+        <input id="foodCal" type="number" placeholder="Calories">
+        <input id="foodPro" type="number" placeholder="Protein (g)">
+        <button class="primary" onclick="addFood()">Add food</button>
+      </div>
+      <div id="foodList" style="margin-top:12px"></div>
+    </div>
+  </section>
+
+  <section id="workout" class="hidden">
+    <div class="card">
+      <div class="row"><div><h2>Full Body A</h2><div class="muted">3 days/week · 20–22 working sets</div></div><button class="primary" onclick="finishWorkout()">Finish</button></div>
+      <div class="muted" style="margin-top:8px">Use a weight that leaves about 2–3 good reps in reserve. When you can hit the top of the rep range with clean form, add a little weight.</div>
+      <div id="exerciseList"></div>
+    </div>
+  </section>
+
+  <section id="nutrition" class="hidden">
+    <div class="card">
+      <img class="nutrition-hero" src="https://static.tildacdn.com/tild3933-3163-4932-b539-323162636463/6738.jpg" alt="Protein-rich foods">
+      <h2>Simple nutrition target</h2>
+      <div class="grid">
+        <div class="stat"><div class="label">Calories</div><div class="value">1,800–1,900</div></div>
+        <div class="stat"><div class="label">Protein</div><div class="value">100–115g</div></div>
+        <div class="stat"><div class="label">Steps</div><div class="value">7k–10k</div></div>
+        <div class="stat"><div class="label">Gym</div><div class="value">3× / week</div></div>
+      </div>
+      <p class="muted">You don't need to force breakfast or snacks. Two meals + your protein drink can work if your daily protein and calories are covered.</p>
+    </div>
+    <div class="card">
+      <h2>Easy portion guide</h2>
+      <div class="row"><span>🍚 Carbs</span><b>1–1.5 fists / meal</b></div>
+      <div class="row"><span>🥩 Protein</span><b>1–1.5 palms / meal</b></div>
+      <div class="row"><span>🥬 Vegetables</span><b>1–2 fists / meal</b></div>
+      <div class="row"><span>🥤 Protein drink</span><b>Count its label calories + protein</b></div>
+    </div>
+    <div class="card">
+      <h2>Steps</h2>
+      <div class="form"><input id="stepsInput" type="number" placeholder="Today's steps"><button class="primary" onclick="saveSteps()">Save steps</button></div>
+    </div>
+  </section>
+
+  <section id="progress" class="hidden">
+    <div class="card">
+      <div class="row"><div><h2>Manual progress</h2><div class="muted">Add or edit any date.</div></div><button class="primary" onclick="openProgressModal()">Add</button></div>
+      <div id="history"></div>
+    </div>
+    <div class="card">
+      <h2>Current baseline</h2>
+      <div class="grid">
+        <div class="stat"><div class="label">Height</div><div class="value">168 cm</div></div>
+        <div class="stat"><div class="label">Starting weight</div><div class="value">57 kg</div></div>
+        <div class="stat"><div class="label">Activity</div><div class="value">7–10k steps</div></div>
+        <div class="stat"><div class="label">Goal</div><div class="value">Lean</div></div>
+      </div>
+    </div>
+  </section>
+</div>
+<footer>Saved locally on this device. PWA install requires HTTPS hosting.</footer>
+
+<div class="modal" id="progressModal">
+  <div class="sheet">
+    <div class="row"><h2 id="modalTitle">Add progress</h2><button class="secondary" onclick="closeProgressModal()">Close</button></div>
+    <div class="form">
+      <input id="pDate" type="date">
+      <input id="pWeight" type="number" step=".1" placeholder="Weight (kg)">
+      <input id="pWaist" type="number" step=".1" placeholder="Waist (cm)">
+      <input id="pSteps" type="number" placeholder="Steps">
+      <textarea id="pNote" class="full" placeholder="Note (optional)"></textarea>
+      <button class="primary full" onclick="saveProgressEntry()">Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const KEY='leanTrackerPWA1';
+const IMG={
+ squat:'https://steelsupplements.com/cdn/shop/articles/shutterstock_627366494_8e10811d-1d15-4731-9fab-fcdbddd8ef11_2000x.jpg?v=1768854444',
+ chest:'https://imgr1.menshealth.de/Brustpresse-inlineImageCOdc-3924ed50-45129.jpg',
+ rdl:'https://www.mensjournal.com/.image/t_share/MTk2MTY1MjI1MjA0NzE4MDg1/romanian-deadlift.jpg',
+ curl:'https://steelsupplements.com/cdn/shop/articles/shutterstock_430434973_1600x.jpg?v=1772043626',
+ biceps:'https://i0.statig.com.br/bancodeimagens/br/cf/h3/brcfh373qukprbp5khibe5ckm.jpg',
+ nutrition:'https://static.tildacdn.com/tild3933-3163-4932-b539-323162636463/6738.jpg'
+};
+const exercises=[
+ ['Smith Machine Squat',3,8,12,'squat','Quads · glutes'],
+ ['Chest Press',3,8,12,'chest','Chest · triceps · shoulders'],
+ ['Lat Pulldown',3,8,12,'nutrition','Back · biceps'],
+ ['Dumbbell Romanian Deadlift',3,8,12,'rdl','Hamstrings · glutes'],
+ ['Shoulder Press',2,8,12,'nutrition','Shoulders · triceps'],
+ ['Leg Curl',2,10,15,'curl','Hamstrings'],
+ ['Dumbbell Curl',2,10,15,'biceps','Biceps'],
+ ['Triceps Pushdown',2,10,15,'nutrition','Triceps']
+];
+let data=JSON.parse(localStorage.getItem(KEY)||'{"days":{}}');
+const dateKey=()=>new Date().toISOString().slice(0,10);
+function day(k=dateKey()){data.days[k] ||= {foods:[],steps:0,sets:{},workout:false};return data.days[k]}
+function save(){localStorage.setItem(KEY,JSON.stringify(data));render()}
+function showTab(id,btn){document.querySelectorAll('section').forEach(s=>s.classList.add('hidden'));document.getElementById(id).classList.remove('hidden');document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');if(id==='progress')renderHistory()}
+function addFood(){let n=foodName.value.trim(),c=+foodCal.value,p=+foodPro.value||0;if(!n||!c)return;day().foods.push({n,c,p});foodName.value=foodCal.value=foodPro.value='';save()}
+function delFood(i){day().foods.splice(i,1);save()}
+function saveSteps(){day().steps=Math.max(0,+stepsInput.value||0);save()}
+function toggleSet(i,s){let k=i+'-'+s;day().sets[k]=!day().sets[k];save()}
+function finishWorkout(){day().workout=!day().workout;save()}
+function openProgressModal(k=dateKey()){let d=day(k);pDate.value=k;pWeight.value=d.weight||'';pWaist.value=d.waist||'';pSteps.value=d.steps||'';pNote.value=d.note||'';progressModal.classList.add('open')}
+function closeProgressModal(){progressModal.classList.remove('open')}
+function saveProgressEntry(){let k=pDate.value;if(!k)return;let d=day(k);d.weight=pWeight.value?+pWeight.value:null;d.waist=pWaist.value?+pWaist.value:null;d.steps=pSteps.value?+pSteps.value:0;d.note=pNote.value.trim();save();closeProgressModal();showTabById('progress')}
+function deleteProgress(k){if(confirm('Delete this progress entry?')){delete data.days[k];save()}}
+function showTabById(id){let btn=[...document.querySelectorAll('.tab')].find(b=>b.textContent.toLowerCase().includes(id));showTab(id,btn)}
+function render(){
+ let d=day(),cal=d.foods.reduce((a,x)=>a+x.c,0),pro=d.foods.reduce((a,x)=>a+x.p,0);
+ calToday.textContent=Math.round(cal);proToday.textContent=Math.round(pro);stepsToday.textContent=(d.steps||0).toLocaleString();workoutStatus.textContent=d.workout?'Done':'—';calBar.style.width=Math.min(100,cal/1850*100)+'%';
+ foodList.innerHTML=d.foods.length?d.foods.map((x,i)=>`<div class="food row"><div><b>${esc(x.n)}</b><div class="muted">${x.c} kcal · ${x.p}g protein</div></div><button class="danger small" onclick="delFood(${i})">Remove</button></div>`).join(''):'<div class="empty">No food logged yet.</div>';
+ exerciseList.innerHTML=exercises.map((e,i)=>{let done=0;for(let s=0;s<e[1];s++)if(d.sets[i+'-'+s])done++;return `<div class="exercise"><img src="${IMG[e[4]]}" alt="${esc(e[0])}" onerror="this.src='${IMG.nutrition}'"><div class="exercise-body"><h3>${e[0]}</h3><div class="muted">${e[1]} sets · ${e[2]}–${e[3]} reps · ${done}/${e[1]} done</div><div class="exercise-note">${e[5]}</div><div class="sets">${Array.from({length:e[1]},(_,s)=>`<button class="set ${d.sets[i+'-'+s]?'done':''}" onclick="toggleSet(${i},${s})">Set ${s+1}</button>`).join('')}</div></div></div>`}).join('');
+ stepsInput.value=d.steps||'';
+ renderHistory();
+}
+function renderHistory(){
+ let arr=Object.entries(data.days).filter(([k,d])=>d.weight||d.waist||d.steps||d.note).sort((a,b)=>b[0].localeCompare(a[0]));
+ history.innerHTML=arr.length?arr.slice(0,60).map(([k,d])=>`<div class="history-item"><div class="row"><b>${k}</b><span>${d.weight?d.weight+' kg':''}${d.waist?' · '+d.waist+' cm':''}</span></div><div class="muted">${d.steps?(d.steps.toLocaleString()+' steps'):''}${d.note?' · '+esc(d.note):''}</div><div class="history-actions"><button class="secondary" onclick="openProgressModal('${k}')">Edit</button><button class="danger" onclick="deleteProgress('${k}')">Delete</button></div></div>`).join(''):'<div class="empty">No progress entries yet.</div>';
+}
+function esc(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+function resetAll(){if(confirm('Delete all tracker data?')){localStorage.removeItem(KEY);location.reload()}}
+if('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js'));
+render();
+</script>
+</body>
+</html>
