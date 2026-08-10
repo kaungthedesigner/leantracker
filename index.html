@@ -137,10 +137,15 @@ footer{position:fixed;bottom:0;left:0;right:0;background:rgba(246,246,244,.94);b
 
 <script>
 const KEY='leanTrackerPWA1';
+const PX='https://images.pexels.com/photos/';
+const CROP='?auto=compress&cs=tinysrgb&w=800&h=400&fit=crop';
 const IMG={
  squat:'https://steelsupplements.com/cdn/shop/articles/shutterstock_627366494_8e10811d-1d15-4731-9fab-fcdbddd8ef11_2000x.jpg?v=1768854444',
  chest:'https://imgr1.menshealth.de/Brustpresse-inlineImageCOdc-3924ed50-45129.jpg',
- rdl:'https://www.mensjournal.com/.image/t_share/MTk2MTY1MjI1MjA0NzE4MDg1/romanian-deadlift.jpg',
+ lat:PX+'6539827/pexels-photo-6539827.jpeg'+CROP,
+ rdl:PX+'29825217/pexels-photo-29825217.jpeg'+CROP,
+ shoulder:PX+'7289370/pexels-photo-7289370.jpeg'+CROP,
+ triceps:PX+'17559311/pexels-photo-17559311.jpeg'+CROP,
  curl:'https://steelsupplements.com/cdn/shop/articles/shutterstock_430434973_1600x.jpg?v=1772043626',
  biceps:'https://i0.statig.com.br/bancodeimagens/br/cf/h3/brcfh373qukprbp5khibe5ckm.jpg',
  nutrition:'https://static.tildacdn.com/tild3933-3163-4932-b539-323162636463/6738.jpg'
@@ -148,12 +153,12 @@ const IMG={
 const exercises=[
  ['Smith Machine Squat',3,8,12,'squat','Quads · glutes'],
  ['Chest Press',3,8,12,'chest','Chest · triceps · shoulders'],
- ['Lat Pulldown',3,8,12,'nutrition','Back · biceps'],
+ ['Lat Pulldown',3,8,12,'lat','Back · biceps'],
  ['Dumbbell Romanian Deadlift',3,8,12,'rdl','Hamstrings · glutes'],
- ['Shoulder Press',2,8,12,'nutrition','Shoulders · triceps'],
+ ['Shoulder Press',2,8,12,'shoulder','Shoulders · triceps'],
  ['Leg Curl',2,10,15,'curl','Hamstrings'],
  ['Dumbbell Curl',2,10,15,'biceps','Biceps'],
- ['Triceps Pushdown',2,10,15,'nutrition','Triceps']
+ ['Triceps Pushdown',2,10,15,'triceps','Triceps']
 ];
 let data=JSON.parse(localStorage.getItem(KEY)||'{"days":{}}');
 const dateKey=()=>new Date().toISOString().slice(0,10);
@@ -174,7 +179,7 @@ function render(){
  let d=day(),cal=d.foods.reduce((a,x)=>a+x.c,0),pro=d.foods.reduce((a,x)=>a+x.p,0);
  calToday.textContent=Math.round(cal);proToday.textContent=Math.round(pro);stepsToday.textContent=(d.steps||0).toLocaleString();workoutStatus.textContent=d.workout?'Done':'—';calBar.style.width=Math.min(100,cal/1850*100)+'%';
  foodList.innerHTML=d.foods.length?d.foods.map((x,i)=>`<div class="food row"><div><b>${esc(x.n)}</b><div class="muted">${x.c} kcal · ${x.p}g protein</div></div><button class="danger small" onclick="delFood(${i})">Remove</button></div>`).join(''):'<div class="empty">No food logged yet.</div>';
- exerciseList.innerHTML=exercises.map((e,i)=>{let done=0;for(let s=0;s<e[1];s++)if(d.sets[i+'-'+s])done++;return `<div class="exercise"><img src="${IMG[e[4]]}" alt="${esc(e[0])}" onerror="this.src='${IMG.nutrition}'"><div class="exercise-body"><h3>${e[0]}</h3><div class="muted">${e[1]} sets · ${e[2]}–${e[3]} reps · ${done}/${e[1]} done</div><div class="exercise-note">${e[5]}</div><div class="sets">${Array.from({length:e[1]},(_,s)=>`<button class="set ${d.sets[i+'-'+s]?'done':''}" onclick="toggleSet(${i},${s})">Set ${s+1}</button>`).join('')}</div></div></div>`}).join('');
+ exerciseList.innerHTML=exercises.map((e,i)=>{let done=0;for(let s=0;s<e[1];s++)if(d.sets[i+'-'+s])done++;return `<div class="exercise"><img src="${IMG[e[4]]}" alt="${esc(e[0])}" loading="lazy" onerror="this.remove()"><div class="exercise-body"><h3>${e[0]}</h3><div class="muted">${e[1]} sets · ${e[2]}–${e[3]} reps · ${done}/${e[1]} done</div><div class="exercise-note">${e[5]}</div><div class="sets">${Array.from({length:e[1]},(_,s)=>`<button class="set ${d.sets[i+'-'+s]?'done':''}" onclick="toggleSet(${i},${s})">Set ${s+1}</button>`).join('')}</div></div></div>`}).join('');
  stepsInput.value=d.steps||'';
  renderHistory();
 }
